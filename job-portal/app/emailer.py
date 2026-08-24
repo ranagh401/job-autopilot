@@ -52,6 +52,41 @@ AI_MENTION = re.compile(
     re.I)
 
 
+# A shared inbox is only worth writing to if a human reads it looking for
+# applications. These never are: automated senders, abuse/fraud desks,
+# and unrelated business functions. Mailing one costs credibility and can
+# get the sending address blocked.
+BAD_INBOX_LOCAL = re.compile(
+    r"^(no[-_.]?reply|donotreply|do[-_.]?not[-_.]?reply|bounce|mailer|"
+    r"postmaster|abuse|spam|phish\w*|fraud|reporthiringfraud|security|"
+    r"report\w*|alert|alerts|notification|notifications|updates?|"
+    r"offer[_-]?update|newsletter|unsubscribe|billing|invoice|accounts|"
+    r"payments?|legal|privacy|press|media|marketing|sales|support|"
+    r"helpdesk|admin|webmaster|test|example|vorname\.nachname|"
+    r"firstname\.lastname|your[-_.]?name)$", re.I)
+
+# Domains that are placeholders or belong to a job board rather than the
+# employer we are writing to.
+BAD_INBOX_DOMAIN = re.compile(
+    r"(^|\.)(domain\.com|example\.(com|org|net)|yourcompany\.com|"
+    r"company\.com|email\.com|test\.com|bebee\.com|naukri\.com|"
+    r"internshala\.com|indeed\.com|glassdoor\.com|monster\.com|"
+    r"shine\.com|timesjobs\.com|foundit\.in)$", re.I)
+
+
+def unusable_inbox(email: str) -> str:
+    """Why this shared inbox must not be cold-emailed, or '' if it is fine."""
+    email = (email or "").strip().lower()
+    if "@" not in email:
+        return "not an email address"
+    local, _, domain = email.partition("@")
+    if BAD_INBOX_DOMAIN.search(domain):
+        return f"{domain} is a placeholder or job-board domain"
+    if BAD_INBOX_LOCAL.match(local):
+        return f"{local}@ is an automated or non-hiring inbox"
+    return ""
+
+
 def gmail_ready() -> bool:
     return bool(os.getenv("GMAIL_ADDRESS") and os.getenv("GMAIL_APP_PASSWORD"))
 
@@ -265,9 +300,22 @@ def autosend_blockers(o: Outreach, min_score: float,
         # unattended cold email - with one exception: an address the
         # recruiter published in their own hiring post is an explicit
         # invitation to apply by email, so a shared inbox is fine there.
+        # A shared inbox is acceptable when the employer published it as
+        # the way to apply. Two cases count: an address the recruiter put
+        # in their own hiring post, and - since ALLOW_ROLE_INBOX was
+        # turned on - any role inbox we verified as belonging to this
+        # company. Reply rates are lower than a named human, but most
+        # Indian employers publish nothing else.
+        allow_inbox = os.getenv("ALLOW_ROLE_INBOX", "false").lower() == "true"
         invited = (contact is not None
-                   and contact.source == "hiring-post"
-                   and contact.kind in ("hr", "engineering", "role_inbox"))
+                   and contact.kind in ("hr", "engineering", "role_inbox")
+                   and (contact.source == "hiring-post"
+                        or (allow_inbox and contact.kind == "role_inbox")))
+        # Even an allowed shared inbox must be one a human actually reads.
+        if invited:
+            bad = unusable_inbox(email)
+            if bad:
+                problems.append(bad)
         if contact is None:
             problems.append("recipient is not a known contact for this job")
         elif contact.verified is None:
@@ -286,15 +334,30 @@ def autosend_blockers(o: Outreach, min_score: float,
     return problems
 
 
-def auto_approve(session, limit: int = 25) -> tuple[int, list[str]]:
+def auto_approve(session, limit: int = 300) -> tuple[int, list[str]]:
     """Promote clean drafts straight to approved so the sender picks them
-    up. Returns (approved, skipped reasons)."""
+    up. Returns (approved, skipped reasons).
+
+    The limit has to cover the whole queue, not a window of it: drafts
+    held by a permanent problem (a shared inbox nobody reads, a guessed
+    address) never leave the queue, so a small oldest-first window fills
+    up with them and newer, perfectly sendable drafts are never even
+    examined.
+    """
+    from sqlalchemy.orm import selectinload
+
+    from .db import Job
+    from .profile import load_profile
+
     min_score = float(os.getenv("AUTO_SEND_MIN_SCORE", "70"))
-    drafts = (session.query(Outreach).filter(Outreach.status == "draft")
+    prof = load_profile()          # once, not once per draft
+    drafts = (session.query(Outreach)
+              .options(selectinload(Outreach.job).selectinload(Job.contacts))
+              .filter(Outreach.status == "draft")
               .order_by(Outreach.created_at.asc()).limit(limit).all())
     approved, held = 0, []
     for o in drafts:
-        problems = autosend_blockers(o, min_score)
+        problems = autosend_blockers(o, min_score, prof)
         if problems:
             held.append(f"#{o.id}: {problems[0]}")
             continue

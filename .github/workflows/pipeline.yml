@@ -52,6 +52,10 @@ jobs:
           HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
           # Behaviour (safe defaults; override as repo variables)
           AUTO_SEND: ${{ vars.AUTO_SEND || 'true' }}
+          # Shared inboxes (careers@, hr@) are allowed - most Indian
+          # employers publish no individual address. Automated and
+          # placeholder inboxes are still rejected in emailer.py.
+          ALLOW_ROLE_INBOX: ${{ vars.ALLOW_ROLE_INBOX || 'true' }}
           AUTO_SEND_MIN_SCORE: ${{ vars.AUTO_SEND_MIN_SCORE || '65' }}
           DAILY_EMAIL_CAP: ${{ vars.DAILY_EMAIL_CAP || '50' }}
           SEND_WINDOW: ${{ vars.SEND_WINDOW || '0-24' }}
