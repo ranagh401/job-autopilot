@@ -1,0 +1,25 @@
+# Credentials - never commit
+job-portal/.env
+**/.env
+!**/.env.example
+
+# Local database, generated resumes, screenshots, server logs
+job-portal/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+**/.venv/
+**/__pycache__/
+*.py[cod]
+
+# Frontend build output and packages
+job-portal/frontend/node_modules/
+job-portal/frontend/dist/
+
+# Scratch
+*.log
+
+# Generated credential list for host setup - never commit
+job-portal/secrets_for_github.txt

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ job.title }}</h1>
+<p>
+  <b>{{ job.company or "Unknown company" }}</b> — {{ job.location or "n/a" }}
+  {% if job.remote %}<span class="badge">remote</span>{% endif %}
+  <span class="badge {{ job.status }}">{{ job.status }}</span>
+  <span class="muted">via {{ job.source }}
+    {% if job.posted_at %}| posted {{ job.posted_at[:16] }}{% endif %}
+    {% if job.salary %}| {{ job.salary }}{% endif %}</span>
+</p>
+{% if job.url %}<p><a href="{{ job.url }}" target="_blank">Open original posting</a></p>{% endif %}
+
+<div class="box">
+  <b>Match:</b>
+  {% if job.match_score is not none %}
+    {{ "%.0f"|format(job.match_score) }}/100
+    {% if job.sponsorship_likely %}<span class="badge shortlisted">sponsorship likely</span>{% endif %}
+    <p class="muted">{{ job.match_notes }}</p>
+  {% else %}<span class="muted">not scored yet</span>{% endif %}
+</div>
+
+<div class="box">
+  <b>Actions:</b><br><br>
+  {% for a, label in [("score", "Score"), ("shortlist", "Shortlist"),
+                      ("contacts", "Find contacts"), ("tailor", "Tailor resume"),
+                      ("draft", "Draft email"), ("skip", "Skip")] %}
+  <form class="inline" method="post" action="/jobs/{{ job.id }}/action">
+    <input type="hidden" name="action" value="{{ a }}">
+    <button class="btn {% if a == 'skip' %}danger{% endif %}"
+            type="submit">{{ label }}</button>
+  </form>
+  {% endfor %}
+</div>
+
+<div class="box">
+  <b>Contact email:</b> {{ job.contact_email or "none yet" }}
+  <form class="inline" method="post" action="/jobs/{{ job.id }}/action">
+    <input type="hidden" name="action" value="set_contact">
+    <input type="text" name="to_email" placeholder="set/override email">
+    <button class="btn secondary" type="submit">Set</button>
+  </form>
+  {% if job.contacts %}
+  <ul>
+    {% for c in job.contacts %}
+    <li>{{ c.email }} <span class="muted">({{ c.source }}
+        {%- if c.name %}, {{ c.name }}{% endif %}
+        {%- if c.role %}, {{ c.role }}{% endif %})</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+{% if job.resumes %}
+<div class="box">
+  <b>Tailored resumes:</b>
+  <ul>{% for r in job.resumes %}
+    <li>{{ r.path.split('\\')[-1] }}
+        <span class="muted">{{ r.created_at.strftime("%d %b %H:%M") }}</span></li>
+  {% endfor %}</ul>
+</div>
+{% endif %}
+
+{% if job.outreach %}
+<div class="box">
+  <b>Outreach:</b>
+  <ul>{% for o in job.outreach %}
+    <li>[{{ o.status }}] to {{ o.to_email or "?" }} — "{{ o.subject }}"
+        {% if o.sent_at %}<span class="muted">sent {{ o.sent_at.strftime("%d %b %H:%M") }}</span>{% endif %}
+        {% if o.reply_received_at %}<span class="badge replied">replied</span>{% endif %}</li>
+  {% endfor %}</ul>
+</div>
+{% endif %}
+
+<h2>Description</h2>
+<pre class="desc">{{ job.description or "(no description captured)" }}</pre>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Jobs</h1>
+<form method="get" action="/jobs" class="box">
+  <select name="status">
+    <option value="">any status</option>
+    {% for st in statuses %}
+    <option value="{{ st }}" {% if st == status %}selected{% endif %}>{{ st }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" placeholder="search title/company/location"
+         value="{{ q }}">
+  <input type="number" name="minscore" placeholder="min score"
+         value="{{ minscore }}" style="width:100px">
+  <button class="btn" type="submit">Filter</button>
+</form>
+
+<table>
+  <tr><th>Score</th><th>Title</th><th>Company</th><th>Location</th>
+      <th>Source</th><th>Status</th><th></th></tr>
+  {% for j in jobs %}
+  <tr>
+    <td>{{ "%.0f"|format(j.match_score) if j.match_score is not none else "-" }}</td>
+    <td><a href="/jobs/{{ j.id }}">{{ j.title[:70] }}</a>
+        {% if j.remote %}<span class="badge">remote</span>{% endif %}
+        {% if j.sponsorship_likely %}<span class="badge shortlisted">sponsor?</span>{% endif %}</td>
+    <td>{{ j.company[:40] }}</td>
+    <td>{{ j.location[:40] }}</td>
+    <td class="muted">{{ j.source }}</td>
+    <td><span class="badge {{ j.status }}">{{ j.status }}</span></td>
+    <td>
+      <form class="inline" method="post" action="/jobs/{{ j.id }}/action">
+        <input type="hidden" name="action" value="shortlist">
+        <button class="btn secondary" type="submit">Shortlist</button>
+      </form>
+      <form class="inline" method="post" action="/jobs/{{ j.id }}/action">
+        <input type="hidden" name="action" value="skip">
+        <button class="btn danger" type="submit">Skip</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="muted">No jobs yet - run "Fetch jobs" from the
+      dashboard.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

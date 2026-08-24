@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Approval queue</h1>
+<p class="muted">Review each draft, fix anything you don't like, then
+Approve. Approved emails go out automatically inside the send window,
+respecting the daily cap. "Send now" sends immediately.</p>
+
+{% for o in drafts %}
+<div class="box">
+  <b><a href="/jobs/{{ o.job_id }}">{{ o.job.title if o.job else "job " ~ o.job_id }}</a></b>
+  — {{ o.job.company if o.job else "" }}
+  <span class="badge {{ 'sent' if o.status == 'approved' else o.status }}">{{ o.status }}</span>
+  {% if o.error %}<p class="missing">Last error: {{ o.error }}</p>{% endif %}
+  <form method="post" action="/queue/{{ o.id }}">
+    <p><label>To: <input type="text" name="to_email" value="{{ o.to_email }}"
+                         style="width:320px"></label></p>
+    <p><label>Subject: <input type="text" name="subject" value="{{ o.subject }}"
+                              style="width:80%"></label></p>
+    <p><textarea name="body">{{ o.body }}</textarea></p>
+    <p class="muted">Attachment: {{ o.resume_path.split('\\')[-1] if o.resume_path else "none" }}</p>
+    <button class="btn secondary" name="action" value="save">Save</button>
+    {% if o.status in ("draft", "failed") %}
+    <button class="btn" name="action" value="approve">Approve</button>
+    {% else %}
+    <button class="btn secondary" name="action" value="unapprove">Back to draft</button>
+    {% endif %}
+    <button class="btn" name="action" value="send"
+            onclick="return confirm('Send this email now?')">Send now</button>
+    <button class="btn danger" name="action" value="delete"
+            onclick="return confirm('Delete this draft?')">Delete</button>
+  </form>
+</div>
+{% else %}
+<p class="muted">Queue is empty. Draft emails from a job page or with
+"Draft emails" on the dashboard.</p>
+{% endfor %}
+{% endblock %}

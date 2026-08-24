@@ -1,0 +1,176 @@
+# Your candidate profile. Edit freely - the matcher, resume tailor and
+# email drafter all read from this file.
+
+name: Your Name
+email: you@example.com   # sent from, and shown on resumes
+phone: "+00-0000000000"
+current_location: Your City, Country
+links:
+  linkedin: ""     # paste your LinkedIn profile URL
+  github: ""       # paste your GitHub URL
+  portfolio: ""
+
+experience_years: 2
+current_title: AI Engineer
+
+target_roles:
+  - AI Engineer
+  - Generative AI Engineer
+  - Machine Learning Engineer
+  - Software Engineer (AI/ML)
+
+# Soft preference only - all-India, remote, and sponsored-abroad are in scope
+locations_priority:
+  - Delhi NCR
+  - Noida
+  - Gurgaon
+  - Bangalore
+  - Remote
+
+open_to_remote: true
+open_to_relocation_abroad: true
+needs_visa_sponsorship: true
+
+notice_period: ""        # e.g. "30 days" - fill in
+current_ctc: ""          # optional
+expected_ctc: ""         # optional
+
+# Free-text notes fed to the matcher/drafter (key skills, highlights).
+# Example shape — replace with your own story:
+notes: >
+  AI Engineer with ~2 years at <your company> building production-grade
+  LLM systems: conversational analytics, NL-to-SQL, RAG architectures,
+  agentic workflows and multi-agent orchestration (LangGraph, LangChain,
+  FastAPI) on Azure and AWS. Stack: Python, FastAPI, PostgreSQL,
+  Databricks, Qdrant, Redis, Docker, CI/CD. <Your degree, college, year>.
+
+# Company career boards swept directly through their public APIs.
+# These carry full descriptions and real apply forms, so they produce far
+# better contacts than aggregator links - and Lever postings can be
+# applied to automatically.
+# Greenhouse: the token from boards.greenhouse.io/<token>
+# Tokens below were verified live - each one returns real postings.
+# To add a company, run: python -m app.discover_boards (see README) or ask
+# the portal to scan it; it probes the company's careers page and reports
+# which board it runs on.
+greenhouse_boards:
+  # India
+  - phonepe
+  - inmobi
+  - groww
+  - turing
+  - observeai
+  # global (sponsorship / remote)
+  - databricks
+  - anthropic
+  - scaleai
+  - gitlab
+  - figma
+  - postman
+  - togetherai
+  - stripe
+  - discord
+  - reddit
+  - robinhood
+  - instacart
+  - flexport
+  - benchling
+  - airtable
+  - hashicorp
+  - sourcegraph
+
+# Lever: the token from jobs.lever.co/<token>
+lever_companies:
+  # India - Lever forms can be submitted by the portal directly
+  - paytm
+  - meesho
+  - cred
+  # global
+  - netflix
+  - plaid
+  - brex
+  - attentive
+  - shipbob
+  - voiceflow
+
+# Ashby boards - jobs.ashbyhq.com/<token>
+ashby_companies:
+  - openai
+  - perplexity
+  - cohere
+  - harvey
+  - elevenlabs
+  - sierra
+  - ramp
+  - notion
+  - vanta
+  - linear
+  - sardine
+  - atlan
+
+# Countries to sweep for sponsored/relocation roles, as Adzuna country
+# codes. These are the markets that actually sponsor Indian AI engineers.
+# au=Australia nz=New Zealand gb=UK de=Germany nl=Netherlands ca=Canada
+# ie=Ireland sg=Singapore pl=Poland at=Austria ch=Switzerland us=USA
+abroad_countries:
+  - au
+  - nz
+  - gb
+  - de
+  - nl
+  - ca
+  - ie
+  - sg
+
+# Hard ceiling on the experience a posting may demand. A job asking for
+# "2-4 years" has a minimum of 2 and passes; "5+ years" is rejected.
+# Raise this to 3 if you want to stretch for slightly senior roles.
+max_experience_years: 2
+
+# Never import jobs from these companies (substring match, case-insensitive).
+# Put your current employer here so you never cold-email your own company.
+company_blocklist:
+  - Your Current Company
+
+# Never import jobs whose title contains these. Covers internships,
+# senior/leadership titles you don't qualify for yet, and tech stacks
+# outside your profile.
+title_blocklist:
+  - intern
+  - internship
+  - director
+  - vice president
+  - principal
+  - head of
+  - chief
+  - architect
+  - manager
+  - sr.
+  - senior
+  - staff engineer
+  - lead engineer
+  - engineering lead
+  - frontend
+  - front-end
+  - front end
+  - ui/ux
+  - ux designer
+  - shopify
+  - wordpress
+  - php
+  - salesforce
+  - sap
+  - android
+  - ios developer
+  - flutter
+  - react native
+  - qa engineer
+  - test engineer
+  - sdet
+  - support engineer
+  - network engineer
+  - hardware
+
+# Instahyre pulls 35 jobs per page per job-function (4 functions).
+# 6 pages ~= 840 rows scanned per fetch.
+instahyre_pages: 6

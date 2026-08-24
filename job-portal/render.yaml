@@ -1,0 +1,55 @@
+# Render blueprint - free web service that serves the portal UI/API.
+#
+# The free instance sleeps after ~15 minutes idle and wakes on the next
+# request (a slow first load). That is fine for a review interface: the
+# scheduled work runs in GitHub Actions, which never sleeps.
+services:
+  - type: web
+    name: job-mania
+    runtime: python
+    plan: free
+    region: singapore          # closest free region to India
+    rootDir: job-portal
+    buildCommand: |
+      pip install -r requirements.txt
+      cd frontend && npm ci && node node_modules/vite/bin/vite.js build
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Must be a path the auth guard lets through unauthenticated - anything
+    # under /api returns 401 and the deploy would never be marked live.
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # The UI only reviews and approves; the cron job does the work.
+      - key: SCHEDULER_ENABLED
+        value: "false"
+      # Set these in the Render dashboard (Environment -> Secret):
+      #   DATABASE_URL, DASHBOARD_PASSWORD, GMAIL_ADDRESS,
+      #   GMAIL_APP_PASSWORD, AZURE_OPENAI_*, SERPER_API_KEY,
+      #   ADZUNA_*, RAPIDAPI_KEY, HUNTER_API_KEY
+      - key: DATABASE_URL
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: GMAIL_ADDRESS
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_APP_KEY
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: HUNTER_API_KEY
+        sync: false

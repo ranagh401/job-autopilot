@@ -1,0 +1,48 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+       background: #f4f6f9; color: #1c2733; }
+nav { background: #16324f; color: #fff; padding: 10px 18px;
+      display: flex; gap: 18px; align-items: center; }
+nav .brand { font-weight: 700; margin-right: 10px; }
+nav a { color: #cfe3f7; text-decoration: none; }
+nav a:hover { color: #fff; }
+nav a.right { margin-left: auto; }
+main { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+.flash { background: #fff7d6; border: 1px solid #e6cf66; padding: 10px 14px;
+         border-radius: 8px; margin: 12px auto; max-width: 1100px; }
+h1 { font-size: 1.4rem; } h2 { font-size: 1.1rem; margin-top: 28px; }
+.cards { display: flex; flex-wrap: wrap; gap: 10px; }
+.card { background: #fff; border: 1px solid #dde4ec; border-radius: 10px;
+        padding: 12px 16px; min-width: 110px; }
+.card .n { font-size: 1.5rem; font-weight: 700; }
+.card .l { color: #5b6b7c; font-size: .85rem; }
+table { width: 100%; border-collapse: collapse; background: #fff;
+        border: 1px solid #dde4ec; border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #eef2f6;
+         font-size: .9rem; vertical-align: top; }
+tr:hover td { background: #f8fafc; }
+a { color: #1a6fc4; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px;
+         font-size: .75rem; background: #e8eef5; }
+.badge.shortlisted, .badge.tailored { background: #d9efd9; }
+.badge.sent { background: #d7e7fa; }
+.badge.replied, .badge.interview { background: #ffe3b3; }
+.badge.skipped { background: #f1d5d5; }
+.btn { display: inline-block; background: #16324f; color: #fff; border: 0;
+       padding: 6px 12px; border-radius: 7px; cursor: pointer;
+       font-size: .85rem; text-decoration: none; }
+.btn.secondary { background: #64798d; }
+.btn.danger { background: #a33; }
+form.inline { display: inline; }
+input[type=text], input[type=password], input[type=number], select, textarea {
+  padding: 7px 9px; border: 1px solid #c8d2dd; border-radius: 7px;
+  font: inherit; }
+textarea { width: 100%; min-height: 150px; }
+.box { background: #fff; border: 1px solid #dde4ec; border-radius: 10px;
+       padding: 14px 16px; margin: 12px 0; }
+.ok { color: #1d7a34; } .missing { color: #b3541e; }
+.muted { color: #5b6b7c; font-size: .85rem; }
+pre.desc { white-space: pre-wrap; font-family: inherit; background: #fff;
+           border: 1px solid #dde4ec; border-radius: 10px; padding: 14px; }
+.login-wrap { max-width: 340px; margin: 12vh auto; }
+.runbtns form { display: inline-block; margin: 0 4px 6px 0; }

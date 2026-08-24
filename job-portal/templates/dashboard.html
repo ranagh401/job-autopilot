@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="cards">
+  {% for st in statuses %}
+  <div class="card">
+    <div class="n">{{ counts.get(st, 0) }}</div>
+    <div class="l"><a href="/jobs?status={{ st }}">{{ st }}</a></div>
+  </div>
+  {% endfor %}
+  <div class="card">
+    <div class="n">{{ sent_today }}/{{ cap }}</div>
+    <div class="l">emails today</div>
+  </div>
+  <div class="card">
+    <div class="n">{{ queue_n }}</div>
+    <div class="l"><a href="/queue">in queue</a></div>
+  </div>
+</div>
+
+<h2>Configuration</h2>
+<div class="box">
+  <ul>
+    {% for name, ok in config.items() %}
+    <li>{% if ok %}<span class="ok">[OK]</span>{% else %}
+        <span class="missing">[missing]</span>{% endif %} {{ name }}</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="/resume/upload" enctype="multipart/form-data">
+    <label>Base resume (.pdf/.docx/.txt):
+      <input type="file" name="file"></label>
+    <button class="btn secondary" type="submit">Upload</button>
+    {% if profile.base_resume %}
+      <span class="muted">current: {{ profile.base_resume.split('\\')[-1] }}</span>
+    {% endif %}
+  </form>
+</div>
+
+<h2>Run now</h2>
+<div class="box runbtns">
+  {% for t, label in [("fetch", "Fetch jobs"), ("score", "Score new jobs"),
+                      ("contacts", "Find contacts"), ("draft", "Draft emails"),
+                      ("send", "Send approved"), ("replies", "Check replies")] %}
+  <form method="post" action="/run/{{ t }}">
+    <button class="btn" type="submit">{{ label }}</button>
+  </form>
+  {% endfor %}
+  <p class="muted">The scheduler also runs these automatically
+    (last cycle: {{ sched.last_cycle or "not yet" }};
+     last fetch: {{ sched.last_fetch or "not yet" }}).</p>
+</div>
+
+<h2>Recent replies</h2>
+<div class="box">
+  {% if recent_replies %}
+  <table>
+    <tr><th>When</th><th>From</th><th>Job</th><th>Snippet</th></tr>
+    {% for o in recent_replies %}
+    <tr>
+      <td>{{ o.reply_received_at.strftime("%d %b %H:%M") }}</td>
+      <td>{{ o.to_email }}</td>
+      <td><a href="/jobs/{{ o.job_id }}">{{ o.job.title if o.job else o.job_id }}</a></td>
+      <td>{{ o.reply_snippet[:160] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">No replies recorded yet.</p>{% endif %}
+</div>
+
+<h2>Activity log</h2>
+<div class="box">
+  {% if sched.log %}
+  <ul>{% for t, m in sched.log[:15] %}<li><span class="muted">{{ t }}</span> — {{ m }}</li>{% endfor %}</ul>
+  {% else %}<p class="muted">Nothing yet. Use the buttons above or wait for the scheduler.</p>{% endif %}
+</div>
+{% endblock %}

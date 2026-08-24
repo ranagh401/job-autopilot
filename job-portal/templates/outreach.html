@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Sent outreach</h1>
+<table>
+  <tr><th>Sent</th><th>To</th><th>Company</th><th>Role</th>
+      <th>Subject</th><th>Reply</th></tr>
+  {% for o in rows %}
+  <tr>
+    <td>{{ o.sent_at.strftime("%d %b %H:%M") if o.sent_at else "-" }}</td>
+    <td>{{ o.to_email }}</td>
+    <td>{{ o.job.company if o.job else "" }}</td>
+    <td><a href="/jobs/{{ o.job_id }}">{{ (o.job.title if o.job else "")[:50] }}</a></td>
+    <td>{{ o.subject[:60] }}</td>
+    <td>
+      {% if o.reply_received_at %}
+        <span class="badge replied">{{ o.reply_received_at.strftime("%d %b") }}</span>
+        <div class="muted">{{ o.reply_snippet[:200] }}</div>
+      {% else %}<span class="muted">no reply yet</span>{% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">Nothing sent yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
